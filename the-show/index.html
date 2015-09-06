@@ -1,0 +1,197 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<title>Dependency Injection in an Angular 2.0 World</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=792, user-scalable=no">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<!-- <link rel="stylesheet" href="shower/themes/ribbon/styles/screen.css"> -->
+	<link rel="stylesheet" href="shower/themes/ribbon/styles/screen.css">
+	<!-- <link type="text/css" rel="stylesheet" href="assets/css/styles.css" /> -->
+</head>
+<body class="list">
+
+	<!-- <form class="login"> -->
+	<!-- 	<span>What's your secret key?</span> -->
+	<!-- 	<input type="text" placeholder="Please enter your secret key!"/> -->
+	<!-- 	<input type="submit" value="➡" /> -->
+	<!-- </form> -->
+
+	<!-- <div class="reveal blurred"> -->
+	<!-- 	<div class="slides"> -->
+	<!-- 		<section data&#45;background="assets/img/1.jpg"> -->
+	<!-- 			<p>Experiment by <a class="tz&#45;link" href="http://tutorialzine.com/2015/02/smartphone&#45;remote&#45;control&#45;for&#45;presentations/">tutorial<span>zine</span></a></p> -->
+	<!-- 			<p><small>Open this presentation on your computer and smartphone. <br>Transition by swiping or pressing keyboard keys.</small></p> -->
+	<!-- 		</section> -->
+	<!-- 		<section> -->
+	<!-- 			<section data&#45;background="assets/img/2.jpg">Vertical Slide 1</section> -->
+	<!-- 			<section data&#45;background="assets/img/3.jpg">Vertical Slide 2</section> -->
+	<!-- 			<section data&#45;background="assets/img/4.jpg">Vertical Slide 3</section> -->
+	<!-- 		</section> -->
+	<!-- 		<section data&#45;background="assets/img/5.jpg">Single Horizontal Slide 2</section> -->
+	<!-- 		<section> -->
+	<!-- 			<section data&#45;background="assets/img/6.jpg">Vertical Slide 4</section> -->
+	<!-- 			<section data&#45;background="assets/img/7.jpg">Vertical Slide 5</section> -->
+	<!-- 		</section> -->
+	<!-- 	</div> -->
+	<!-- </div> -->
+
+	<!-- Including the JS libraries that we use -->
+	<script src="//code.jquery.com/jquery-2.1.3.min.js"></script>
+
+	<!-- Reveal.js is for presentations -->
+	<!-- <script src="assets/revealjs/lib/js/head.min.js"></script> -->
+	<!-- <script src="assets/revealjs/js/reveal.js"></script> -->
+
+	<!-- Socket.io library -->
+	<script src="/socket.io/socket.io.js"></script>
+
+	<!-- Main JavaScript file -->
+	<script src="assets/js/script.js"></script>
+
+	<header class="caption">
+		<h1>Dependency Injection in an Angular 2.0 World</h1>
+		<p>Henrik Vendelbo (@thepian)</p>
+	</header>
+
+	<section class="slide cover" id="Cover"><div>
+		<h2>Dependency Injection in an Angular 2.0 World</h2>
+		<p>Presented by <a href="http://twitter.com/thepian">Henrik Vendelbo</a></p>
+		<h3>Opinions ahead ...</h3>
+		<img src="pictures/cover.jpg" alt="">
+		<!--
+			To apply styles to the certain slides
+			set slide ID to get needed elements
+			-->
+		<style>
+			.cover h3, .cover h4 {
+				color: white;
+				text-align: center;
+				font: 700 40px/1 'PT Sans Narrow', sans-serif;
+				margin:30px 0 0;
+			}
+
+			#Cover h2 {
+				margin:30px 0 0;
+				color:#FFF;
+				text-align:center;
+				font-size:70px;
+				}
+			#Cover p {
+				margin:10px 0 0;
+				text-align:center;
+				color:#FFF;
+				font-style:italic;
+				font-size:20px;
+				}
+				#Cover p a {
+					color:#FFF;
+					}
+		</style>
+	</div></section>
+
+	<style>
+	.laid-out .center {
+		display: block;
+		text-align: center;
+	}
+	.laid-out .center-block {
+		margin-left: auto;
+		margin-right: auto;
+	}
+	.laid-out em {
+		color: red;
+	}
+	.laid-out .big {
+		font-weight: 500;
+		font-size: 2em;
+	}
+	.laid-out .overlay {
+		background-color: rgba(255,255,255,0.8);
+	}
+	</style>
+
+	<section class="slide laid-out"><div>
+		<h2>Dependency Addiction in Angular 1</h2>
+
+		<blockquote>.. means giving an object its instance variables. Really. That's it.
+			<address>James Shore, 22 March 2006</address></blockquote>
+		<em class="center big">vs</em>
+		<blockquote>.., a good way to import static dependencies.
+			<addres>(Angular 1 mindset)</address></blockquote>
+	</div></section>
+
+	<section class="slide laid-out"><div>
+		<h2>Avoids tight coupling</h2>
+		<pre>
+		<code>// @ngInject</code>
+		<code>function Controller($state, $window, DataModel) {</code>
+		<code>	var vm = this;</code>
+		<code>	DataModel.$promise.then(function() {</code>
+		<code>		vm.products = listProducts(DataModel);</code>
+		<code>	});</code>
+		<code>	vm.debug = { href: $window.location.href.path };</code>
+		<code>}</code>
+		</pre>
+	</div>
+	<div class="next overlay">
+		<h3 style="position:absolute;top:33%;right:25%;">Easier to test with injected stubs</h3>
+		<h3 style="position:absolute;top:48%;left:50%;">Fewer concerns per function</h3>
+		<h3 style="position:absolute;bottom:25%;right:30%;">Focus on objective, less boilerplate</h3>
+	</div>
+	</section>
+
+	<section class="slide laid-out"><div>
+		<h2>and then the Abuse</h2>
+		<pre>
+		<code>// @ngInject</code>
+		<code>function Controller(DataModel, UtilService) {</code>
+		<code>	if (UtilService.isEmptyObject(DataModel.info)) {</code>
+		<code>		this.products = [];</code>
+		<code>	});</code>
+		<code>}</code>
+		<code>angular.module("app",["model","util"])</code>
+		<code>	.controller("AppController",Controller);</code>
+		</pre>
+	</div></section>
+
+	<section class="slide laid-out"><div>
+		<h2>Providers = no go</h2>
+		<pre>
+		<code>// @ngInject <em>Fail!</em></code>
+		<code>function Provider(DataModel, UtilService) {</code>
+		<code>	if (UtilService.isEmptyObject(DataModel.info)) {</code>
+		<code>		this.products = [];</code>
+		<code>	});</code>
+		<code>}</code>
+		<code>Provider.prototype.$get = function() { return this; };</code>
+		</pre>
+	</div></section>
+
+	<section class="slide laid-out"><div>
+		<p>Just like Inheritance shouldn't be used for sharing code, Dependency
+		Injection isn't ideal for sharing code.</p>
+		<h2>DI is for access to shared data, not code</h2>
+		<ol>
+			<li>Know your toolbox</li>
+			<li>Don't tie your hands arbitrarily</li>
+			<li>There is no silver bullet</li>
+		</ol>
+	</div></section>
+
+	<section class="slide laid-out"><div>
+	</div></section>
+
+	<section class="slide laid-out"><div>
+	</div></section>
+
+	<!--
+		To hide progress bar from entire presentation
+		just remove “progress” element.
+		-->
+	<div class="progress"><div></div></div>
+	<script src="shower/shower.min.js"></script>
+	<!-- Copyright © 2014 Yours Truly, Famous Inc. -->
+	<!-- Photos by John Carey, fiftyfootshadows.net -->
+</body>
+</html>
