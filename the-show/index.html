@@ -102,6 +102,10 @@
 	.laid-out em {
 		color: red;
 	}
+	.laid-out .small {
+		font-size: .8em;
+		margin-bottom: 20px;
+	}
 	.laid-out .big {
 		font-weight: 500;
 		font-size: 2em;
@@ -180,11 +184,129 @@
 	</div></section>
 
 	<section class="slide laid-out"><div>
+		<p class="small">Without a language-level module system you should share functions using</p>
+		<h2>Constant Injection</h2>
+		<pre>
+			<code>module.constant('isEmptyObject',function(obj) { .. });</code>
+
+			<code>// @ngInject</code>
+			<code>function Provider(DataModelProvider, isEmptyObject) {</code>
+			<code>	if (isEmptyObject(DataModelProvider.info)) {</code>
+			<code>		this.products = [];</code>
+			<code>	}</code>
+			<code>}</code>
+		</pre>
+	</div></section>
+
+	<section class="slide laid-out"><div>
+		<h2>Angular in ES6 land</h2>
+		<p>Modules are a language construct</p>
+		<pre>
+		<code>import isEmptyObject from "./util";</code>
+		</pre>
+		<p>This works independently of Angular so it works the same throughout your application.
+			No matter which Angular version.</p>
+		<p class="red">Transpile ES6 -> ES5 today with Babel. <code>npm install babel</code></p>
+	</div></section>
+
+	<section class="slide laid-out"><div>
+		<h2>Package your JS</h2>
+		<h3 style="margin-top:-20px;"><code>npm install</code> <code>browserify</code>/<code>webpack</code>/<code>jspm</code></h3>
+
+		<pre>
+			<code>var isEmptyObject = require("./util").isEmptyObject;</code>
+
+			<code>// @ngInject</code>
+			<code>function Provider(DataModelProvider) {</code>
+			<code>	if (isEmptyObject(DataModelProvider.info)) {</code>
+			<code>		this.products = [];</code>
+			<code>	}</code>
+			<code>}</code>
+		</pre>
+	</div></section>
+
+	<section class="slide laid-out"><div>
+		<h2>BTW: Injection in Angular 1.0 decorators</h2>
+		<p>Don't use @ngInject for Provider Decorators</p>
+		<pre>
+		<code>// @ngInject <em>Fail!</em></code>
+		<code>function datepickerDecoration($delegate,$rootScope) {</code>
+		<code>	var directive = $delegate[0]; // undefined
+		<code>}</code>
+		<code>$provide.decorator('datepickerDirective',datepickerDecoration);
+		</pre>
+	</div></section>
+
+	<section class="slide laid-out"><div>
+		<h2>Beware of The Angular modules</h2>
+		<p>It builds a single namespace for resolution. This means that you will have
+		occasional silent name clashes. Limit number of modules.</p>
+		<ol>
+			<li>Treat it as a poor mans module manager</li>
+			<li>It lacks hierachy and relative references</li>
+			<li>It gets replaced in Angular 2.0</li>
+			<li>It works for small amounts of modules but scale poorly</li>
+			<li>Don't forget; No abstraction comes for free.</li>
+		</ol>
+	</div></section>
+
+	<section class="slide laid-out"><div>
+		<h2>Also, use Native Promises</h2>
+		<p>Routers are configured during config. The resolver needs a function returning
+			a promise, but <code>$q</code> is only there after config.</p>
+		<pre class="small">
+		<code>&lt;script src="bower_components/es6-shim/es6-shim.js"&gt;&lt;/script&gt;</code>
+		<code>function AsyncDataProvider() {</code>
+		<code>	this.promise = new Promise(fetchWhenProviding);</code>
+		<code>}</code>
+		<code>AsyncDataProvider.prototype.$get = function(){ </code>
+		<code>	fetchData(this.makeInstance()); return this.instance; };</code>
+		</pre>
+
+	</div></section>
+
+	<section class="slide laid-out"><div>
+		<h2>Angular 2.0: Rather than</h2>
+		<pre>
+		<code>class Car {</code>
+		<code>  constructor() {</code>
+		<code>    this.engine = new Engine();</code>
+		<code>    this.tires = Tires.getInstance();</code>
+		<code>    this.doors = app.get('doors');</code>
+		<code>  }</code>
+		<code>}</code>
+		</pre>
+	</div></section>
+
+	<section class="slide laid-out"><div>
+		<h2>Angular 2.0: You will inject the instances</h2>
+		<pre>
+		<code>class Car {</code>
+		<code>  constructor(engine, tires, doors) {</code>
+		<code>    this.engine = engine;</code>
+		<code>    this.tires = tires;</code>
+		<code>    this.doors = doors;</code>
+		<code>  }</code>
+		<code>}</code>
+		<code>Car.$inject = ['Engine','tires','doors'];
+		</pre>
+	</div></section>
+	<!-- http://blog.thoughtram.io/angular/2015/05/03/the-difference-between-annotations-and-decorators.html -->
+	<section class="slide laid-out"><div>
+		<h2>Angular 2.0: Or with proposed ES6 decorators</h2>
+		<pre>
+		<code>class Car {</code>
+		<code>  constructor(@Inject(Engine) engine, @Inject(Tires) tires, @Inject(Doors) doors) {</code>
+		<code>    this.engine = engine;</code>
+		<code>    this.tires = tires;</code>
+		<code>    this.doors = doors;</code>
+		<code>  }</code>
+		<code>}</code>
+		</pre>
 	</div></section>
 
 	<section class="slide laid-out"><div>
 	</div></section>
-
 	<!--
 		To hide progress bar from entire presentation
 		just remove “progress” element.
